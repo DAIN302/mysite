@@ -1,0 +1,8 @@
+@charset "uft-8";
+/* 보그 PJ 서브 페이지 CSS */
+
+/* 외부 CSS 파일 합치기 */
+@import url(./reset.css);
+@import url(./core.css);
+@import url(./common.css);
+
