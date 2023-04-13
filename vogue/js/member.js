@@ -67,8 +67,60 @@ $(()=>{
                 // 1. DB에 아이디가 있는지 조회후 결과로 처리해야함(보류)
                 // 만약 아이디가 이미 있으면 "이미 사용중이거나 탈퇴한 아이디입니다."
                 // 만약 아이디가 없으면 "멋진 아이디네요!"
-                // 2. 메시지뿌리기
-                $(this).siblings(".msg").text("멋진 아이디네요!").addClass("on")
+                /* 
+                    [ AJAX로 중복아이디 검사하기! ]
+                    ajax 처리 유형 2가지
+
+                    1) post 방식 처리 메서드
+                    - $.post(URL,data,callback)
+
+                    2) get 방식 처리 메서드
+                    - $.get(URL,callback)
+
+                    3) 위의 2가지 유형 중 선택처리 메서드
+                    - $.ajax({전송할페이지,전송방식,보낼데이터,전송할데이터타입,비동기옵션,성공처리,실패처리})
+                    -> 보내는 값은 하나, 객체 데이터 
+                       객체 안에 7가지 유형의 데이터를 보냄
+                */
+
+                $.ajax({
+                    // 1. 전송할페이지
+                    url:"./process/chkID.php",
+                    // 2. 전송방식(get/post)
+                    type : "post",
+                    // 3. 보낼데이터 : 객체 형식
+                    data : {"mid":$("#mid").val()},
+                    // 4. 전송할데이터타입 : 웹문서일 경우 "html"
+                    dataType : "html", 
+                    // 5. 비동기옵션
+                    // ajax메서드는 비동기처리됨
+                    // 다만 현재 문서와의 동기처리를 하려면 비동기옵션값을 false로 해야함
+                    // pass전역변수를 사용하기 위헤 필요
+                    // 최종 트리거 blur 발생 시 순서대로 처리할 때 동기화해야하기때문에
+                    async : false,
+                    // 6. 성공처리
+                    success : function(res){ // res - 결과값 리턴
+                        console.log(res);
+                        if(res==="ok") {
+                            // 2. 메시지뿌리기
+                            $("#mid").siblings(".msg").text("멋진 아이디네요!").addClass("on")
+                        } // ok
+                        else { // 아이디 중복 시
+                            $("#mid").siblings(".msg").text("사용중인 아이디입니다.").removeClass("on")
+
+                            // 불통과처리 -> pass 변수 사용 이유로 async false 옵션 사용
+                            pass = false;
+                        }
+                    },
+                    // 7. 실패처리
+                    // xhr - XML - XMLHttpRequest 객체
+                    // status - 실패상태코드
+                    // error - 에러결과값
+                    error : function(xhr, status, error){
+                        alert("연결 진행 실패:"+error)
+                    }
+                }); ////// ajax 메서드
+                
             }
        } // else if : 아이디검사 시
         /************************************************
@@ -270,14 +322,66 @@ $("#btnj").click(e=>{
 
     // 4. 검사결과에 따른 메세지 보이기
     if(pass) {
+        // 일단 페이지 테스트를 위해 기본 서브밋해줌
+        // $(".logF").submit();
+        // submit() - 폼요소를 서브밋해주는 메서드
+        /* 
+            [ Ajax를 이용한 POST방식으로 DB에 데이터 입력하기! ]
+
+            AJAX = Asynchronous Javascript and XML
+
+            - 비동기통신이란? 쉽게 말해서 페이지가 새로고쳐지지 않고
+            그대로 있으면서 일부분만 서버통신을 하는 것을 말한다!
+            - 제이쿼리는 POST방식으로 ajax를 할 수 있다!
+
+            [ POST방식 Ajax 메서드 ]
+            $.post(URL,data,callback)
+            $.post(전송할페이지,전송할데이터,전송후실행함수)
+        */
+        $.post(
+            // 1. 전송할페이지 : 서브밋할 페이지
+            "./process/ins.php",
+            // 2. 전송할데이터 : 객체 형식{속성:값}
+            {
+                // 1. 아이디
+                "mid" : $("#mid").val(),
+                // 2. 비밀번호
+                "mpw" : $("#mpw").val(),
+                // 3. 이름
+                "mnm" : $("#mnm").val(),
+                // 4. 성별
+                "gen" : $(":radio[name=gen]:checked").val(),
+                // 5. 이메일 앞주소
+                "email1" : $("#email1").val(),
+                // 6. 이메일 뒷주소(선택박스)
+                "seleml" : $("#seleml").val(),
+                // 7. 이메일 뒷주소(직접입력)
+                "email2" : $("#email2").val(),
+            },
+            // 3. 전송후실행함수 : 
+            // -> 익명함수로 실행 후 결과 리턴받음
+            // -> 이 부분이 Promise 처리된 것임
+            function(res){ // res - 리턴된 결과받는 변수
+                console.log(res);
+                // 성공시 
+                if(res==="ok") {
+                    alert("회원가입을 축하드립니다!")
+                    location.replace("login.php")
+                } /// if문
+                // 실패시
+                else { //// 에러발생시
+                    alert("관리자에게 문의하세요\n"+res)
+                }
+                
+            }
+        ); ////// post 메서드
+
         // 원래는 post 방시으로 DB에 회원가입 정보를 전송하여 입력 후 DB처리 완료시
         // 성공 메세지나 로그인 페이지로 넘겨줌
-        alert("회원가입을 축하드립니다!")
         // 로그인 페이지로 리디렉션
         // location.href = "login.html"
         // 브라우저 캐싱 히스토리를 지우려면 -> 뒤로가기 버튼 비활성화됨
         // location.replace(url)사용
-        location.replace("login.html")
     } /// if : 통과 시
     else {
         alert("입력 내용을 확인해주세요")
