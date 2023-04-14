@@ -33,6 +33,8 @@
     <script src="./js/category.js"></script>
   </head>
   <body>
+    <!-- 로그인 세션처리 인클루드 -->
+    <?php include "./inc/login_session.inc" ?>    
     <!-- 1. 상단영역 -->
     <!-- #top.on인 경우 슬림상단 디자인 적용 -->
     <div id="top">

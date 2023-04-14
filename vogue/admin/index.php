@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
     <meta charset="UTF-8">
     <title>My Item 회원 리스트</title>
@@ -472,7 +471,7 @@
 
 
 
-    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script src="../js/jquery-3.6.1.min.js"></script>
     <script>
         /*//////////////////////////////////////////////
             함수명: logout
